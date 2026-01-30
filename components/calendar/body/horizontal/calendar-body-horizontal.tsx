@@ -4,13 +4,13 @@ import { useCalendarContext } from '../../calendar-context'
 import { useTheaterContext } from '@/components/theater/theater-context'
 import { startOfWeek, addDays, format, parseISO, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { useMemo, useRef, useEffect, useState } from 'react'
-import TheaterShowBlock from '@/components/theater/theater-show-block'
+import { useMemo, useRef, useState } from 'react'
+import TheaterShowEvent from '@/components/theater/theater-show-event'
 import { Representation } from '@/lib/theater-types'
-import { cn } from '@/lib/utils'
+
 
 const HOUR_WIDTH = 300 // pixels per hour
-const MIN_ROW_HEIGHT = 30 // minimum height per show
+const MIN_ROW_HEIGHT = 45 // minimum height per show
 const DAY_LABEL_WIDTH = 60 // width of day labels column
 const HEADER_HEIGHT = 40 // height of hour headers
 
@@ -176,7 +176,7 @@ export default function CalendarBodyHorizontal() {
                                                 height: laneHeight,
                                             }}
                                         >
-                                            <TheaterShowBlock
+                                            <TheaterShowEvent
                                                 representation={rep}
                                                 className="h-full"
                                                 compact={laneHeight < 50}

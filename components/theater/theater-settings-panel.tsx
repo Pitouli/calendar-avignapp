@@ -70,7 +70,7 @@ export default function TheaterSettingsPanel() {
 
           {/* Simulated date */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Date simulée (aujourd'hui)</Label>
+            <Label className="text-sm font-medium">Date simulée (aujourd&apos;hui)</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button

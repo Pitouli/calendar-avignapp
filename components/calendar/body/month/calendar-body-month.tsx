@@ -1,4 +1,5 @@
 import { useCalendarContext } from '../../calendar-context'
+import { useTheaterContext } from '@/components/theater/theater-context'
 import {
   startOfMonth,
   endOfMonth,
@@ -9,13 +10,16 @@ import {
   isSameDay,
   format,
   isWithinInterval,
+  parseISO,
 } from 'date-fns'
 import { cn } from '@/lib/utils'
 import CalendarEvent from '../../calendar-event'
+import TheaterShowEvent from '@/components/theater/theater-show-event'
 import { AnimatePresence, motion } from 'framer-motion'
 
 export default function CalendarBodyMonth() {
   const { date, events, setDate, setMode } = useCalendarContext()
+  const { visibleRepresentations } = useTheaterContext()
 
   // Get the first day of the month
   const monthStart = startOfMonth(date)
@@ -44,6 +48,15 @@ export default function CalendarBodyMonth() {
       }) ||
       isWithinInterval(event.end, { start: calendarStart, end: calendarEnd })
   )
+
+  // Filter shows to only show those within the current month view
+  const visibleShows = visibleRepresentations.filter((rep) => {
+    const repDate = parseISO(rep.start)
+    return isWithinInterval(repDate, {
+      start: calendarStart,
+      end: calendarEnd,
+    })
+  })
 
   return (
     <div className="flex flex-col flex-grow overflow-hidden">
@@ -74,8 +87,14 @@ export default function CalendarBodyMonth() {
             const dayEvents = visibleEvents.filter((event) =>
               isSameDay(event.start, day)
             )
+            const dayShows = visibleShows.filter((rep) =>
+              isSameDay(parseISO(rep.start), day)
+            )
             const isToday = isSameDay(day, today)
             const isCurrentMonth = isSameMonth(day, date)
+
+            // Combine events and shows for counting and display
+            const totalItems = dayEvents.length + dayShows.length
 
             return (
               <div
@@ -100,6 +119,7 @@ export default function CalendarBodyMonth() {
                 </div>
                 <AnimatePresence mode="wait">
                   <div className="flex flex-col gap-1 mt-1">
+                    {/* Show up to 3 items: events first, then shows */}
                     {dayEvents.slice(0, 3).map((event) => (
                       <CalendarEvent
                         key={event.id}
@@ -108,7 +128,14 @@ export default function CalendarBodyMonth() {
                         month
                       />
                     ))}
-                    {dayEvents.length > 3 && (
+                    {dayShows.slice(0, Math.max(0, 3 - dayEvents.length)).map((rep) => (
+                      <TheaterShowEvent
+                        key={rep.id}
+                        representation={rep}
+                        compact
+                      />
+                    ))}
+                    {totalItems > 3 && (
                       <motion.div
                         key={`more-${day.toISOString()}`}
                         initial={{ opacity: 0 }}
@@ -124,7 +151,7 @@ export default function CalendarBodyMonth() {
                           setMode('day')
                         }}
                       >
-                        +{dayEvents.length - 3} more
+                        +{totalItems - 3} more
                       </motion.div>
                     )}
                   </div>

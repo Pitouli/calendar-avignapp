@@ -3,6 +3,7 @@
 import { useState, useMemo, ReactNode } from 'react'
 import { TheaterContext, TheaterContextType } from './theater-context'
 import { Play, Representation } from '@/lib/theater-types'
+import { CalendarEvent } from '@/components/calendar/calendar-types'
 import {
     getPlays,
     generateRepresentations,
@@ -13,9 +14,21 @@ import {
 
 interface TheaterProviderProps {
     children: ReactNode
+    events: CalendarEvent[]
+    setEvents: (events: CalendarEvent[]) => void
 }
 
-export default function TheaterProvider({ children }: TheaterProviderProps) {
+// Check if a calendar event overlaps with a representation
+function eventOverlapsRepresentation(event: CalendarEvent, rep: Representation): boolean {
+    const repStart = new Date(rep.start).getTime()
+    const repEnd = new Date(rep.end).getTime()
+    const eventStart = event.start.getTime()
+    const eventEnd = event.end.getTime()
+
+    return eventStart < repEnd && eventEnd > repStart
+}
+
+export default function TheaterProvider({ children, events, setEvents }: TheaterProviderProps) {
     // Load plays and generate representations once
     const [plays] = useState<Play[]>(() => getPlays())
     const [allRepresentations] = useState<Representation[]>(() => generateRepresentations(plays))
@@ -46,7 +59,6 @@ export default function TheaterProvider({ children }: TheaterProviderProps) {
     }
 
     // Toggle chosen for a representation
-    // When choosing a representation, it also marks conflicting ones as hidden
     const toggleChosen = (representationId: string) => {
         setChosen(prev => {
             const next = new Set(prev)
@@ -65,7 +77,7 @@ export default function TheaterProvider({ children }: TheaterProviderProps) {
         [allRepresentations, dateRange]
     )
 
-    // Compute hidden representation IDs (conflicts + other reps of chosen plays)
+    // Compute hidden representation IDs (conflicts + other reps of chosen plays + blocked by events)
     const hiddenRepresentationIds = useMemo(() => {
         const hidden = new Set<string>()
 
@@ -87,8 +99,24 @@ export default function TheaterProvider({ children }: TheaterProviderProps) {
             }
         }
 
+        // Hide "interested" (non-chosen) representations that are blocked by events
+        for (const rep of representationsInRange) {
+            // Skip if already hidden or if it's chosen (chosen shows are never blocked)
+            if (hidden.has(rep.id) || chosen.has(rep.id)) {
+                continue
+            }
+
+            // Check if any event overlaps this representation
+            for (const event of events) {
+                if (eventOverlapsRepresentation(event, rep)) {
+                    hidden.add(rep.id)
+                    break
+                }
+            }
+        }
+
         return hidden
-    }, [representationsInRange, chosen])
+    }, [representationsInRange, chosen, events])
 
     // Compute visible representations
     const visibleRepresentations = useMemo(() => {
@@ -115,6 +143,8 @@ export default function TheaterProvider({ children }: TheaterProviderProps) {
     const value: TheaterContextType = {
         plays,
         representations: allRepresentations,
+        events,
+        setEvents,
         favorites,
         toggleFavorite,
         chosen,

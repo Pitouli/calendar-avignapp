@@ -12,7 +12,7 @@ export default function CalendarDemo() {
   const [date, setDate] = useState<Date>(new Date(2026, 6, 7)) // July 7, 2026 - festival period
 
   return (
-    <TheaterProvider>
+    <TheaterProvider events={events} setEvents={setEvents}>
       <Calendar
         events={events}
         setEvents={setEvents}

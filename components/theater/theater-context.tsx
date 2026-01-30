@@ -2,11 +2,16 @@
 
 import { createContext, useContext } from 'react'
 import { Play, Representation } from '@/lib/theater-types'
+import { CalendarEvent } from '@/components/calendar/calendar-types'
 
 export interface TheaterContextType {
     // Data
     plays: Play[]
     representations: Representation[]
+
+    // External calendar events (blockers)
+    events: CalendarEvent[]
+    setEvents: (events: CalendarEvent[]) => void
 
     // Favorites (plays the user wants to see)
     favorites: Set<string>
@@ -31,7 +36,7 @@ export interface TheaterContextType {
     // Computed: representations that should be visible
     visibleRepresentations: Representation[]
 
-    // Computed: representations hidden due to conflicts or already chosen play
+    // Computed: representations hidden due to conflicts, events, or already chosen play
     hiddenRepresentationIds: Set<string>
 }
 

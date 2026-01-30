@@ -6,6 +6,7 @@ import CalendarHeaderDate from './header/date/calendar-header-date'
 import CalendarHeaderActionsMode from './header/actions/calendar-header-actions-mode'
 import CalendarHeaderActionsAdd from './header/actions/calendar-header-actions-add'
 import CalendarProvider from './calendar-provider'
+import TheaterSettingsPanel from '../theater/theater-settings-panel'
 
 export default function Calendar({
   events,
@@ -30,6 +31,7 @@ export default function Calendar({
         <CalendarHeaderDate />
         <CalendarHeaderActions>
           <CalendarHeaderActionsMode />
+          <TheaterSettingsPanel />
           <CalendarHeaderActionsAdd />
         </CalendarHeaderActions>
       </CalendarHeader>
@@ -37,3 +39,4 @@ export default function Calendar({
     </CalendarProvider>
   )
 }
+

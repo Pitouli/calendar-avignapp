@@ -1,0 +1,704 @@
+{
+  "plays": [
+    {
+      "id": "play-01",
+      "title": "Le Cid",
+      "duration": 90,
+      "startTime": {
+        "hour": 20,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily"
+      }
+    },
+    {
+      "id": "play-02",
+      "title": "Hamlet",
+      "duration": 85,
+      "startTime": {
+        "hour": 21,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily"
+      }
+    },
+    {
+      "id": "play-03",
+      "title": "Phèdre",
+      "duration": 75,
+      "startTime": {
+        "hour": 19,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 1
+      }
+    },
+    {
+      "id": "play-04",
+      "title": "L'Avare",
+      "duration": 80,
+      "startTime": {
+        "hour": 18,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 2
+      }
+    },
+    {
+      "id": "play-05",
+      "title": "Cyrano de Bergerac",
+      "duration": 90,
+      "startTime": {
+        "hour": 21,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 3
+      }
+    },
+    {
+      "id": "play-06",
+      "title": "Les Fourberies de Scapin",
+      "duration": 60,
+      "startTime": {
+        "hour": 14,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 0
+      }
+    },
+    {
+      "id": "play-07",
+      "title": "En attendant Godot",
+      "duration": 70,
+      "startTime": {
+        "hour": 17,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 4
+      }
+    },
+    {
+      "id": "play-08",
+      "title": "La Cantatrice chauve",
+      "duration": 50,
+      "startTime": {
+        "hour": 15,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 5
+      }
+    },
+    {
+      "id": "play-09",
+      "title": "Le Malade imaginaire",
+      "duration": 75,
+      "startTime": {
+        "hour": 16,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 6
+      }
+    },
+    {
+      "id": "play-10",
+      "title": "Antigone",
+      "duration": 65,
+      "startTime": {
+        "hour": 11,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 1
+      }
+    },
+    {
+      "id": "play-11",
+      "title": "Rhinocéros",
+      "duration": 80,
+      "startTime": {
+        "hour": 20,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-12",
+      "title": "Huis clos",
+      "duration": 55,
+      "startTime": {
+        "hour": 19,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 1
+      }
+    },
+    {
+      "id": "play-13",
+      "title": "Le Tartuffe",
+      "duration": 85,
+      "startTime": {
+        "hour": 21,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-14",
+      "title": "Dom Juan",
+      "duration": 90,
+      "startTime": {
+        "hour": 20,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 1
+      }
+    },
+    {
+      "id": "play-15",
+      "title": "Les Bonnes",
+      "duration": 60,
+      "startTime": {
+        "hour": 18,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-16",
+      "title": "Le Misanthrope",
+      "duration": 75,
+      "startTime": {
+        "hour": 17,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 1
+      }
+    },
+    {
+      "id": "play-17",
+      "title": "Britannicus",
+      "duration": 70,
+      "startTime": {
+        "hour": 16,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-18",
+      "title": "Le Bourgeois gentilhomme",
+      "duration": 80,
+      "startTime": {
+        "hour": 15,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 1
+      }
+    },
+    {
+      "id": "play-19",
+      "title": "Art",
+      "duration": 50,
+      "startTime": {
+        "hour": 12,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          1,
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "id": "play-20",
+      "title": "Le Prénom",
+      "duration": 55,
+      "startTime": {
+        "hour": 13,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          2,
+          4,
+          6
+        ]
+      }
+    },
+    {
+      "id": "play-21",
+      "title": "Le Dîner de cons",
+      "duration": 60,
+      "startTime": {
+        "hour": 19,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          0,
+          3,
+          6
+        ]
+      }
+    },
+    {
+      "id": "play-22",
+      "title": "Oscar",
+      "duration": 65,
+      "startTime": {
+        "hour": 14,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          1,
+          4
+        ]
+      }
+    },
+    {
+      "id": "play-23",
+      "title": "La Cage aux folles",
+      "duration": 85,
+      "startTime": {
+        "hour": 21,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          5,
+          6,
+          0
+        ]
+      }
+    },
+    {
+      "id": "play-24",
+      "title": "Boeing Boeing",
+      "duration": 70,
+      "startTime": {
+        "hour": 18,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          2,
+          5
+        ]
+      }
+    },
+    {
+      "id": "play-25",
+      "title": "Un fil à la patte",
+      "duration": 75,
+      "startTime": {
+        "hour": 17,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 2
+      }
+    },
+    {
+      "id": "play-26",
+      "title": "Roméo et Juliette",
+      "duration": 90,
+      "startTime": {
+        "hour": 20,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily"
+      }
+    },
+    {
+      "id": "play-27",
+      "title": "Macbeth",
+      "duration": 80,
+      "startTime": {
+        "hour": 22,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 0
+      }
+    },
+    {
+      "id": "play-28",
+      "title": "Le Songe d'une nuit d'été",
+      "duration": 70,
+      "startTime": {
+        "hour": 21,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-29",
+      "title": "Othello",
+      "duration": 85,
+      "startTime": {
+        "hour": 19,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 1
+      }
+    },
+    {
+      "id": "play-30",
+      "title": "Le Roi Lear",
+      "duration": 90,
+      "startTime": {
+        "hour": 20,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          3,
+          4,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "id": "play-31",
+      "title": "Les Justes",
+      "duration": 65,
+      "startTime": {
+        "hour": 18,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 3
+      }
+    },
+    {
+      "id": "play-32",
+      "title": "Caligula",
+      "duration": 75,
+      "startTime": {
+        "hour": 19,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-33",
+      "title": "L'Étranger",
+      "duration": 60,
+      "startTime": {
+        "hour": 16,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          1,
+          2,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "id": "play-34",
+      "title": "La Nuit des rois",
+      "duration": 70,
+      "startTime": {
+        "hour": 15,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 4
+      }
+    },
+    {
+      "id": "play-35",
+      "title": "Lorenzaccio",
+      "duration": 85,
+      "startTime": {
+        "hour": 20,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 1
+      }
+    },
+    {
+      "id": "play-36",
+      "title": "Ruy Blas",
+      "duration": 80,
+      "startTime": {
+        "hour": 21,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          0,
+          2,
+          4,
+          6
+        ]
+      }
+    },
+    {
+      "id": "play-37",
+      "title": "Hernani",
+      "duration": 75,
+      "startTime": {
+        "hour": 18,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 5
+      }
+    },
+    {
+      "id": "play-38",
+      "title": "L'École des femmes",
+      "duration": 70,
+      "startTime": {
+        "hour": 17,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-39",
+      "title": "Les Femmes savantes",
+      "duration": 65,
+      "startTime": {
+        "hour": 14,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 6
+      }
+    },
+    {
+      "id": "play-40",
+      "title": "Le Médecin malgré lui",
+      "duration": 50,
+      "startTime": {
+        "hour": 11,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily"
+      }
+    },
+    {
+      "id": "play-41",
+      "title": "Les Précieuses ridicules",
+      "duration": 45,
+      "startTime": {
+        "hour": 10,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 1
+      }
+    },
+    {
+      "id": "play-42",
+      "title": "George Dandin",
+      "duration": 55,
+      "startTime": {
+        "hour": 12,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 1
+      }
+    },
+    {
+      "id": "play-43",
+      "title": "Amphitryon",
+      "duration": 60,
+      "startTime": {
+        "hour": 13,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          1,
+          3,
+          5,
+          0
+        ]
+      }
+    },
+    {
+      "id": "play-44",
+      "title": "Le Jeu de l'amour et du hasard",
+      "duration": 65,
+      "startTime": {
+        "hour": 16,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 2
+      }
+    },
+    {
+      "id": "play-45",
+      "title": "Les Fausses Confidences",
+      "duration": 70,
+      "startTime": {
+        "hour": 15,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-46",
+      "title": "La Double Inconstance",
+      "duration": 55,
+      "startTime": {
+        "hour": 14,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          2,
+          4,
+          6
+        ]
+      }
+    },
+    {
+      "id": "play-47",
+      "title": "L'Île des esclaves",
+      "duration": 50,
+      "startTime": {
+        "hour": 11,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "daily-except",
+        "exceptDay": 0
+      }
+    },
+    {
+      "id": "play-48",
+      "title": "Le Père Goriot",
+      "duration": 80,
+      "startTime": {
+        "hour": 19,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          1,
+          3,
+          4,
+          6
+        ]
+      }
+    },
+    {
+      "id": "play-49",
+      "title": "Madame Bovary",
+      "duration": 85,
+      "startTime": {
+        "hour": 20,
+        "minute": 30
+      },
+      "schedule": {
+        "type": "every-other-day",
+        "startOffset": 0
+      }
+    },
+    {
+      "id": "play-50",
+      "title": "Les Misérables",
+      "duration": 90,
+      "startTime": {
+        "hour": 8,
+        "minute": 0
+      },
+      "schedule": {
+        "type": "specific-days",
+        "days": [
+          0,
+          6
+        ]
+      }
+    }
+  ]
+}

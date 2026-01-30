@@ -25,6 +25,7 @@ import { RiSettings3Line, RiCalendarLine } from '@remixicon/react'
 import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { FESTIVAL_DATE_RANGE } from '@/lib/theater-data'
+import { GlobalThemeToggle } from '../global/global-theme-toggle'
 
 export default function TheaterSettingsPanel() {
   const {
@@ -175,6 +176,9 @@ export default function TheaterSettingsPanel() {
               </div>
             </ScrollArea>
           </div>
+
+          {/* Theme Toggle */}
+          <GlobalThemeToggle />
         </div>
       </SheetContent>
     </Sheet>

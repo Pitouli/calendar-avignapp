@@ -10,7 +10,7 @@ import {
 import { Monitor, Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
-export function HeaderThemeToggle() {
+export function GlobalThemeToggle() {
   const { setTheme } = useTheme()
 
   return (

@@ -9,14 +9,15 @@ import CalendarEvent from '@/components/calendar/calendar-event'
 import { CalendarEvent as CalendarEventType } from '@/components/calendar/calendar-types'
 import { representationToTheaterEvent } from '@/lib/theater-data'
 import { computeEventLayout } from '@/lib/event-layout'
+import { cn } from '@/lib/utils'
 
 const HOUR_WIDTH = 300 // pixels per hour
 const MIN_ROW_HEIGHT = 45 // minimum height per show
 const DAY_LABEL_WIDTH = 60 // width of day labels column
-const HEADER_HEIGHT = 40 // height of hour headers
+const HEADER_HEIGHT = 37 // Matches unified height
 
-// Hours from 8h to 24h (we show 8-24 for theater)
-const HOURS = Array.from({ length: 17 }, (_, i) => i + 8) // 8, 9, 10, ..., 24
+// Hours from 0h to 23h
+const HOURS = Array.from({ length: 24 }, (_, i) => i)
 
 export default function CalendarBodyHorizontal() {
     const { date, events } = useCalendarContext()
@@ -35,7 +36,7 @@ export default function CalendarBodyHorizontal() {
             // 1. Get Blockers for this day
             const dayBlockers = events.filter(event =>
                 isSameDay(event.start, day)
-            ).map(evt => ({ ...evt, type: 'blocker' as const })) // Ensure type is set
+            ).map(evt => ({ ...evt, type: 'blocker' as const }))
 
             // 2. Get Shows for this day
             const dayShows = visibleRepresentations
@@ -49,7 +50,6 @@ export default function CalendarBodyHorizontal() {
             const layoutItems = computeEventLayout(allDayEvents)
 
             // Calculate row height based on the max dimension of any group in the day
-            // If empty, maxLanes is 1 (default height)
             const maxLanes = layoutItems.length > 0
                 ? Math.max(...layoutItems.map(item => item.totalLanes))
                 : 1
@@ -98,10 +98,14 @@ export default function CalendarBodyHorizontal() {
                         {HOURS.map(hour => (
                             <div
                                 key={hour}
-                                className="shrink-0 flex items-center justify-center text-sm font-medium text-muted-foreground border-r"
+                                className="shrink-0 relative"
                                 style={{ width: HOUR_WIDTH, height: HEADER_HEIGHT }}
                             >
-                                {hour}h
+                                {hour !== 0 && (
+                                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 left-0 text-sm text-muted-foreground">
+                                        {format(new Date().setHours(hour, 0, 0, 0), 'h a')}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -118,24 +122,29 @@ export default function CalendarBodyHorizontal() {
                     <div
                         style={{ transform: `translateY(-${scrollTop}px)` }}
                     >
-                        {dayData.map(({ date: dayDate, rowHeight }) => (
-                            <div
-                                key={dayDate.toISOString()}
-                                className="border-b flex items-center justify-center"
-                                style={{ height: rowHeight }}
-                            >
+                        {dayData.map(({ date: dayDate, rowHeight }) => {
+                            const isToday = isSameDay(dayDate, new Date())
+                            return (
                                 <div
-                                    className="text-sm font-medium text-muted-foreground"
-                                    style={{
-                                        writingMode: 'vertical-rl',
-                                        textOrientation: 'mixed',
-                                        transform: 'rotate(180deg)',
-                                    }}
+                                    key={dayDate.toISOString()}
+                                    className="border-b flex flex-col items-center justify-center p-1"
+                                    style={{ height: rowHeight }}
                                 >
-                                    {format(dayDate, 'EEE d', { locale: fr })}
+                                    <span className={cn(
+                                        "text-sm font-medium leading-none",
+                                        isToday ? "text-primary" : "text-muted-foreground"
+                                    )}>
+                                        {format(dayDate, 'EEE')}
+                                    </span>
+                                    <span className={cn(
+                                        "text-sm font-medium leading-none mt-1",
+                                        isToday ? "text-primary font-bold" : "text-foreground"
+                                    )}>
+                                        {format(dayDate, 'dd')}
+                                    </span>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
 
@@ -157,7 +166,7 @@ export default function CalendarBodyHorizontal() {
                                     {HOURS.map(hour => (
                                         <div
                                             key={hour}
-                                            className="shrink-0 border-r border-dashed border-muted"
+                                            className="shrink-0 border-l border-border/50"
                                             style={{ width: HOUR_WIDTH }}
                                         />
                                     ))}
@@ -171,7 +180,8 @@ export default function CalendarBodyHorizontal() {
                                     const startHour = startTime.getHours() + startTime.getMinutes() / 60
                                     const endHour = endTime.getHours() + endTime.getMinutes() / 60
 
-                                    const left = (startHour - 8) * HOUR_WIDTH
+                                    // Offset from 0h
+                                    const left = (startHour - 0) * HOUR_WIDTH
                                     const width = (endHour - startHour) * HOUR_WIDTH
 
                                     const topPercentage = (lane / totalLanes) * 100

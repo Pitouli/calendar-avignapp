@@ -14,7 +14,7 @@ export default function CalendarBodyHeader({
     <div className="flex items-center justify-center gap-1 py-2 w-full sticky top-0 bg-background z-10 border-b">
       <span
         className={cn(
-          'text-xs font-medium',
+          'text-sm font-medium',
           isToday ? 'text-primary' : 'text-muted-foreground'
         )}
       >
@@ -23,7 +23,7 @@ export default function CalendarBodyHeader({
       {!onlyDay && (
         <span
           className={cn(
-            'text-xs font-medium',
+            'text-sm font-medium',
             isToday ? 'text-primary font-bold' : 'text-foreground'
           )}
         >

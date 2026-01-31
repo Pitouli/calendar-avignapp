@@ -1,4 +1,5 @@
 import { Play, Representation, SchedulePattern } from './theater-types'
+import { TheaterEvent } from '@/components/calendar/calendar-types'
 import playsData from '@/data/mock-theater-plays.json'
 import { addMinutes, format, parseISO, getDay } from 'date-fns'
 
@@ -98,6 +99,23 @@ export function getConflictingRepresentations(
   return allReps.filter(rep =>
     rep.id !== targetRep.id && representationsOverlap(targetRep, rep)
   )
+}
+
+// Helper to convert Representation to TheaterEvent
+export function representationToTheaterEvent(
+  rep: Representation,
+  isChosen: boolean
+): TheaterEvent {
+  return {
+    id: rep.id,
+    type: 'theater',
+    title: rep.playTitle,
+    playTitle: rep.playTitle,
+    representationId: rep.id,
+    start: parseISO(rep.start),
+    end: parseISO(rep.end),
+    color: isChosen ? 'blue' : 'amber'
+  }
 }
 
 // Festival date constants for export

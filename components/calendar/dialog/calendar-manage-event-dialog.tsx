@@ -98,6 +98,7 @@ export default function CalendarManageEventDialog() {
 
     const updatedEvent = {
       ...selectedEvent,
+      type: 'blocker' as const,
       title: values.title,
       start: new Date(values.start),
       end: new Date(values.end),

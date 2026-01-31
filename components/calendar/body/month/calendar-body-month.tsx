@@ -1,3 +1,5 @@
+'use client'
+
 import { useCalendarContext } from '../../calendar-context'
 import { useTheaterContext } from '@/components/theater/theater-context'
 import {
@@ -6,32 +8,27 @@ import {
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
-  isSameMonth,
   isSameDay,
-  format,
+  isSameMonth,
   isWithinInterval,
   parseISO,
 } from 'date-fns'
 import { cn } from '@/lib/utils'
 import CalendarEvent from '../../calendar-event'
-import TheaterShowEvent from '@/components/theater/theater-show-event'
 import { AnimatePresence, motion } from 'framer-motion'
+import { representationToTheaterEvent } from '@/lib/theater-data'
+import { CalendarEvent as CalendarEventType } from '@/components/calendar/calendar-types'
 
 export default function CalendarBodyMonth() {
   const { date, events, setDate, setMode } = useCalendarContext()
-  const { visibleRepresentations } = useTheaterContext()
+  const { visibleRepresentations, chosen } = useTheaterContext()
 
-  // Get the first day of the month
+  // Get date range for month view
   const monthStart = startOfMonth(date)
-  // Get the last day of the month
   const monthEnd = endOfMonth(date)
-
-  // Get the first Monday of the first week (may be in previous month)
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-  // Get the last Sunday of the last week (may be in next month)
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
 
-  // Get all days between start and end
   const calendarDays = eachDayOfInterval({
     start: calendarStart,
     end: calendarEnd,
@@ -39,8 +36,8 @@ export default function CalendarBodyMonth() {
 
   const today = new Date()
 
-  // Filter events to only show those within the current month view
-  const visibleEvents = events.filter(
+  // 1. Prepare Blockers (Classic Events)
+  const visibleEvents: CalendarEventType[] = events.filter(
     (event) =>
       isWithinInterval(event.start, {
         start: calendarStart,
@@ -49,118 +46,114 @@ export default function CalendarBodyMonth() {
       isWithinInterval(event.end, { start: calendarStart, end: calendarEnd })
   )
 
-  // Filter shows to only show those within the current month view
-  const visibleShows = visibleRepresentations.filter((rep) => {
-    const repDate = parseISO(rep.start)
-    return isWithinInterval(repDate, {
-      start: calendarStart,
-      end: calendarEnd,
+  // 2. Prepare Shows (Theater Events)
+  const visibleShows: CalendarEventType[] = visibleRepresentations
+    .filter((rep) => {
+      const repDate = parseISO(rep.start)
+      return isWithinInterval(repDate, {
+        start: calendarStart,
+        end: calendarEnd,
+      })
     })
-  })
+    .map(rep => representationToTheaterEvent(rep, chosen.has(rep.id)))
+
+  // Sort helper
+  const sortEvents = (a: CalendarEventType, b: CalendarEventType) => {
+    const diff = a.start.getTime() - b.start.getTime()
+    if (diff !== 0) return diff
+    if (a.type === 'blocker' && b.type === 'theater') return -1
+    if (a.type === 'theater' && b.type === 'blocker') return 1
+    return 0
+  }
 
   return (
     <div className="flex flex-col flex-grow overflow-hidden">
-      <div className="hidden md:grid grid-cols-7 border-border divide-x divide-border">
+      {/* Day of Week Header */}
+      <div className="grid grid-cols-7 border-b">
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
           <div
             key={day}
-            className="py-2 text-center text-sm font-medium text-muted-foreground border-b border-border"
+            className="p-2 text-center text-sm font-semibold text-muted-foreground border-r last:border-r-0"
           >
             {day}
           </div>
         ))}
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={monthStart.toISOString()}
-          className="grid md:grid-cols-7 flex-grow overflow-y-auto relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{
-            duration: 0.2,
-            ease: 'easeInOut',
-          }}
-        >
-          {calendarDays.map((day) => {
-            const dayEvents = visibleEvents.filter((event) =>
-              isSameDay(event.start, day)
-            )
-            const dayShows = visibleShows.filter((rep) =>
-              isSameDay(parseISO(rep.start), day)
-            )
-            const isToday = isSameDay(day, today)
-            const isCurrentMonth = isSameMonth(day, date)
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 grid-rows-5 flex-grow">
+        {calendarDays.map((day) => {
+          // Filter events for this specific day
+          const dayEvents = visibleEvents.filter((event) =>
+            isSameDay(event.start, day)
+          )
+          const dayShows = visibleShows.filter((event) =>
+            isSameDay(event.start, day)
+          )
 
-            // Combine events and shows for counting and display
-            const totalItems = dayEvents.length + dayShows.length
+          // Merge and sort
+          const allDayEvents = [...dayEvents, ...dayShows].sort(sortEvents)
 
-            return (
-              <div
-                key={day.toISOString()}
-                className={cn(
-                  'relative flex flex-col border-b border-r p-2 aspect-square cursor-pointer',
-                  !isCurrentMonth && 'bg-muted/50 hidden md:flex'
-                )}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setDate(day)
-                  setMode('day')
-                }}
-              >
-                <div
+          const isToday = isSameDay(day, today)
+          const isCurrentMonth = isSameMonth(day, date)
+
+          return (
+            <div
+              key={day.toISOString()}
+              className={cn(
+                'min-h-[100px] border-b border-r p-2 flex flex-col group transition-colors hover:bg-muted/50 relative',
+                !isCurrentMonth && 'bg-muted/10 text-muted-foreground',
+                day.getDay() === 0 && 'border-r-0' // No right border for Sunday columns
+              )}
+              onClick={() => {
+                setDate(day)
+                setMode('day')
+              }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span
                   className={cn(
-                    'text-sm font-medium w-fit p-1 flex flex-col items-center justify-center rounded-full aspect-square',
-                    isToday && 'bg-primary text-background'
+                    'text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full',
+                    isToday && 'bg-primary text-primary-foreground',
+                    !isCurrentMonth && 'opacity-50'
                   )}
                 >
-                  {format(day, 'd')}
-                </div>
-                <AnimatePresence mode="wait">
-                  <div className="flex flex-col gap-1 mt-1">
-                    {/* Show up to 3 items: events first, then shows */}
-                    {dayEvents.slice(0, 3).map((event) => (
-                      <CalendarEvent
-                        key={event.id}
-                        event={event}
-                        className="relative h-auto"
-                        month
-                      />
-                    ))}
-                    {dayShows.slice(0, Math.max(0, 3 - dayEvents.length)).map((rep) => (
-                      <TheaterShowEvent
-                        key={rep.id}
-                        representation={rep}
-                        compact
-                      />
-                    ))}
-                    {totalItems > 3 && (
-                      <motion.div
-                        key={`more-${day.toISOString()}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                          duration: 0.2,
-                        }}
-                        className="text-xs text-muted-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setDate(day)
-                          setMode('day')
-                        }}
-                      >
-                        +{totalItems - 3} more
-                      </motion.div>
-                    )}
-                  </div>
-                </AnimatePresence>
+                  {day.getDate()}
+                </span>
               </div>
-            )
-          })}
-        </motion.div>
-      </AnimatePresence>
+              <AnimatePresence mode="wait">
+                <div className="flex flex-col gap-1 mt-1">
+                  {/* Show up to 3 unified events */}
+                  {allDayEvents.slice(0, 3).map((event) => (
+                    <CalendarEvent
+                      key={event.id}
+                      event={event}
+                      month
+                    />
+                  ))}
+
+                  {allDayEvents.length > 3 && (
+                    <motion.div
+                      key={`more-${day.toISOString()}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="text-xs text-muted-foreground font-medium pl-1 cursor-pointer hover:text-primary"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDate(day)
+                        setMode('day')
+                      }}
+                    >
+                      +{allDayEvents.length - 3} more
+                    </motion.div>
+                  )}
+                </div>
+              </AnimatePresence>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

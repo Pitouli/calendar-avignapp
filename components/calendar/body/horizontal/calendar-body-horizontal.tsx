@@ -5,9 +5,10 @@ import { useTheaterContext } from '@/components/theater/theater-context'
 import { startOfWeek, addDays, format, parseISO, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useMemo, useRef, useState } from 'react'
-import TheaterShowEvent from '@/components/theater/theater-show-event'
-import { Representation } from '@/lib/theater-types'
-
+import CalendarEvent from '@/components/calendar/calendar-event'
+import { CalendarEvent as CalendarEventType } from '@/components/calendar/calendar-types'
+import { representationToTheaterEvent } from '@/lib/theater-data'
+import { computeEventLayout } from '@/lib/event-layout'
 
 const HOUR_WIDTH = 300 // pixels per hour
 const MIN_ROW_HEIGHT = 45 // minimum height per show
@@ -18,7 +19,7 @@ const HEADER_HEIGHT = 40 // height of hour headers
 const HOURS = Array.from({ length: 17 }, (_, i) => i + 8) // 8, 9, 10, ..., 24
 
 export default function CalendarBodyHorizontal() {
-    const { date } = useCalendarContext()
+    const { date, events } = useCalendarContext()
     const { visibleRepresentations, chosen } = useTheaterContext()
 
     const containerRef = useRef<HTMLDivElement>(null)
@@ -28,28 +29,40 @@ export default function CalendarBodyHorizontal() {
     const weekStart = startOfWeek(date, { weekStartsOn: 1 })
     const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 
-    // Group representations by day and calculate overlaps
+    // Group representations/events by day and calculate overlaps
     const dayData = useMemo(() => {
         return weekDays.map(day => {
-            const dayReps = visibleRepresentations.filter(rep =>
-                isSameDay(parseISO(rep.start), day)
-            )
+            // 1. Get Blockers for this day
+            const dayBlockers = events.filter(event =>
+                isSameDay(event.start, day)
+            ).map(evt => ({ ...evt, type: 'blocker' as const })) // Ensure type is set
 
-            // Calculate max overlapping at any point in time
-            const maxOverlap = calculateMaxOverlap(dayReps)
-            const rowHeight = Math.max(MIN_ROW_HEIGHT, maxOverlap * MIN_ROW_HEIGHT)
+            // 2. Get Shows for this day
+            const dayShows = visibleRepresentations
+                .filter(rep => isSameDay(parseISO(rep.start), day))
+                .map(rep => representationToTheaterEvent(rep, chosen.has(rep.id)))
 
-            // Assign vertical positions to each representation
-            const repsWithPositions = assignVerticalPositions(dayReps)
+            // 3. Merge
+            const allDayEvents: CalendarEventType[] = [...dayBlockers, ...dayShows]
+
+            // 4. Compute layout using the centralized algorithm
+            const layoutItems = computeEventLayout(allDayEvents)
+
+            // Calculate row height based on the max dimension of any group in the day
+            // If empty, maxLanes is 1 (default height)
+            const maxLanes = layoutItems.length > 0
+                ? Math.max(...layoutItems.map(item => item.totalLanes))
+                : 1
+
+            const rowHeight = Math.max(MIN_ROW_HEIGHT, maxLanes * MIN_ROW_HEIGHT)
 
             return {
                 date: day,
-                representations: repsWithPositions,
-                maxOverlap,
+                layoutItems,
                 rowHeight,
             }
         })
-    }, [weekDays, visibleRepresentations])
+    }, [weekDays, visibleRepresentations, events, chosen])
 
     // Handle scroll synchronization
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -133,7 +146,7 @@ export default function CalendarBodyHorizontal() {
                     onScroll={handleScroll}
                 >
                     <div style={{ width: totalWidth }}>
-                        {dayData.map(({ date: dayDate, representations, rowHeight, maxOverlap }) => (
+                        {dayData.map(({ date: dayDate, layoutItems, rowHeight }) => (
                             <div
                                 key={dayDate.toISOString()}
                                 className="relative border-b"
@@ -150,38 +163,34 @@ export default function CalendarBodyHorizontal() {
                                     ))}
                                 </div>
 
-                                {/* Representations */}
-                                {representations.map(({ rep, lane, totalLanes }) => {
-                                    const startTime = parseISO(rep.start)
-                                    const endTime = parseISO(rep.end)
+                                {/* Events */}
+                                {layoutItems.map(({ event, lane, totalLanes }) => {
+                                    const startTime = event.start
+                                    const endTime = event.end
 
                                     const startHour = startTime.getHours() + startTime.getMinutes() / 60
                                     const endHour = endTime.getHours() + endTime.getMinutes() / 60
 
                                     const left = (startHour - 8) * HOUR_WIDTH
                                     const width = (endHour - startHour) * HOUR_WIDTH
-                                    const laneHeight = rowHeight / totalLanes
-                                    const top = lane * laneHeight
 
-                                    const isChosen = chosen.has(rep.id)
+                                    const topPercentage = (lane / totalLanes) * 100
+                                    const heightPercentage = (1 / totalLanes) * 100
+
+                                    // Minimum width for visibility
+                                    const finalWidth = Math.max(width, 60)
 
                                     return (
-                                        <div
-                                            key={rep.id}
-                                            className="absolute p-0.5"
-                                            style={{
-                                                left,
-                                                width: Math.max(width, 60),
-                                                top,
-                                                height: laneHeight,
+                                        <CalendarEvent
+                                            key={event.id}
+                                            event={event}
+                                            customPosition={{
+                                                left: `${left}px`,
+                                                width: `${finalWidth}px`,
+                                                top: `${topPercentage}%`,
+                                                height: `${heightPercentage}%`
                                             }}
-                                        >
-                                            <TheaterShowEvent
-                                                representation={rep}
-                                                className="h-full"
-                                                compact={laneHeight < 50}
-                                            />
-                                        </div>
+                                        />
                                     )
                                 })}
                             </div>
@@ -191,73 +200,4 @@ export default function CalendarBodyHorizontal() {
             </div>
         </div>
     )
-}
-
-// Calculate maximum number of overlapping representations at any point
-function calculateMaxOverlap(reps: Representation[]): number {
-    if (reps.length === 0) return 1
-
-    // Create events for start and end times
-    const events: { time: number; type: 'start' | 'end' }[] = []
-
-    for (const rep of reps) {
-        events.push({ time: new Date(rep.start).getTime(), type: 'start' })
-        events.push({ time: new Date(rep.end).getTime(), type: 'end' })
-    }
-
-    // Sort events by time, with 'end' coming before 'start' at the same time
-    events.sort((a, b) => {
-        if (a.time !== b.time) return a.time - b.time
-        return a.type === 'end' ? -1 : 1
-    })
-
-    let current = 0
-    let max = 0
-
-    for (const event of events) {
-        if (event.type === 'start') {
-            current++
-            max = Math.max(max, current)
-        } else {
-            current--
-        }
-    }
-
-    return Math.max(max, 1)
-}
-
-// Assign vertical lane positions to representations
-function assignVerticalPositions(reps: Representation[]): { rep: Representation; lane: number; totalLanes: number }[] {
-    if (reps.length === 0) return []
-
-    // Sort by start time
-    const sorted = [...reps].sort((a, b) =>
-        new Date(a.start).getTime() - new Date(b.start).getTime()
-    )
-
-    const lanes: { end: number }[] = []
-    const result: { rep: Representation; lane: number; totalLanes: number }[] = []
-
-    for (const rep of sorted) {
-        const startTime = new Date(rep.start).getTime()
-
-        // Find a free lane
-        let lane = lanes.findIndex(l => l.end <= startTime)
-
-        if (lane === -1) {
-            lane = lanes.length
-            lanes.push({ end: 0 })
-        }
-
-        lanes[lane].end = new Date(rep.end).getTime()
-        result.push({ rep, lane, totalLanes: 0 }) // totalLanes will be set later
-    }
-
-    // Set totalLanes for all
-    const totalLanes = lanes.length
-    for (const item of result) {
-        item.totalLanes = totalLanes
-    }
-
-    return result
 }

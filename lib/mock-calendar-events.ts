@@ -50,6 +50,7 @@ export function generateMockEvents(): CalendarEvent[] {
 
     events.push({
       id: `event-${i + 1}`,
+      type: 'blocker',
       title: EVENT_TITLES[Math.floor(Math.random() * EVENT_TITLES.length)],
       color: EVENT_COLORS[Math.floor(Math.random() * EVENT_COLORS.length)],
       start: startTime,

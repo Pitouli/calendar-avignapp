@@ -58,6 +58,7 @@ export default function CalendarNewEventDialog() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     const newEvent = {
       id: crypto.randomUUID(),
+      type: 'blocker' as const,
       title: values.title,
       start: new Date(values.start),
       end: new Date(values.end),

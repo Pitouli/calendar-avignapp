@@ -1,69 +1,76 @@
+'use client'
+
 import { useCalendarContext } from '../../calendar-context'
 import { useTheaterContext } from '@/components/theater/theater-context'
 import { isSameDay, parseISO } from 'date-fns'
 import { hours } from './calendar-body-margin-day-margin'
 import CalendarBodyHeader from '../calendar-body-header'
 import CalendarEvent from '../../calendar-event'
-import TheaterShowEvent from '@/components/theater/theater-show-event'
-import { Representation } from '@/lib/theater-types'
-
-// Calculate position for a theater show (similar to CalendarEvent positioning)
-function calculateShowPosition(rep: Representation): { top: string; height: string } {
-  const startTime = parseISO(rep.start)
-  const endTime = parseISO(rep.end)
-
-  const startHour = startTime.getHours()
-  const startMinutes = startTime.getMinutes()
-  const endHour = endTime.getHours()
-  const endMinutes = endTime.getMinutes()
-
-  const topPosition = startHour * 128 + (startMinutes / 60) * 128
-  const duration = endHour * 60 + endMinutes - (startHour * 60 + startMinutes)
-  const height = (duration / 60) * 128
-
-  return {
-    top: `${topPosition}px`,
-    height: `${height}px`,
-  }
-}
+import { CalendarEvent as CalendarEventType, TheaterEvent } from '@/components/calendar/calendar-types'
+import { computeEventLayout } from '@/lib/event-layout'
 
 export default function CalendarBodyDayContent({ date }: { date: Date }) {
-  const { events } = useCalendarContext()
-  const { visibleRepresentations } = useTheaterContext()
+  const { events } = useCalendarContext() // These are blockers
+  const { visibleRepresentations, chosen } = useTheaterContext()
 
-  const dayEvents = events.filter((event) => isSameDay(event.start, date))
-  const dayShows = visibleRepresentations.filter((rep) =>
-    isSameDay(parseISO(rep.start), date)
-  )
+  // Filter blockers for this day
+  const dayBlockers = events.filter((event) => isSameDay(event.start, date))
+
+  // Filter shows for this day and convert to TheaterEvent
+  const dayShows: TheaterEvent[] = visibleRepresentations
+    .filter((rep) => isSameDay(parseISO(rep.start), date))
+    .map((rep) => ({
+      id: rep.id,
+      type: 'theater',
+      title: rep.playTitle,
+      playTitle: rep.playTitle,
+      start: parseISO(rep.start),
+      end: parseISO(rep.end),
+      color: chosen.has(rep.id) ? 'blue' : 'amber',
+      representationId: rep.id,
+    }))
+
+  // Merge events
+  const allDayEvents: CalendarEventType[] = [...dayBlockers, ...dayShows]
+
+  // Compute layout (lanes)
+  const layoutItems = computeEventLayout(allDayEvents)
 
   return (
     <div className="flex flex-col flex-grow">
+      {/* Date Header using reusable component */}
       <CalendarBodyHeader date={date} />
 
-      <div className="flex-1 relative">
+      {/* Time Grid with Events */}
+      <div className="flex-grow relative min-h-[1000px]">
         {hours.map((hour) => (
           <div key={hour} className="h-32 border-b border-border/50 group" />
         ))}
 
-        {/* Classic events (pink) */}
-        {dayEvents.map((event) => (
-          <CalendarEvent key={event.id} event={event} />
-        ))}
+        {layoutItems.map(({ event, lane, totalLanes }) => {
+          const startHour = event.start.getHours()
+          const startMin = event.start.getMinutes()
+          const endHour = event.end.getHours()
+          const endMin = event.end.getMinutes()
 
-        {/* Theater shows (amber/blue) */}
-        {dayShows.map((rep) => {
-          const position = calculateShowPosition(rep)
+          // 128px per hour (h-32 = 8rem = 128px)
+          const pixelsPerHour = 128
+          const startInHours = startHour + startMin / 60
+          const endInHours = endHour + endMin / 60
+          const durationInHours = endInHours - startInHours
+
           return (
-            <div
-              key={rep.id}
-              className="absolute left-0 right-0 px-1"
-              style={position}
-            >
-              <TheaterShowEvent
-                representation={rep}
-                className="h-full"
-              />
-            </div>
+            <CalendarEvent
+              key={event.id}
+              event={event}
+              // Pass the computed layout position
+              customPosition={{
+                left: `${(lane / totalLanes) * 100}%`,
+                width: `${(1 / totalLanes) * 100}%`,
+                top: `${startInHours * pixelsPerHour}px`,
+                height: `${durationInHours * pixelsPerHour}px`,
+              }}
+            />
           )
         })}
       </div>

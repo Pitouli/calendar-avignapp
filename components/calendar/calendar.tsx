@@ -27,6 +27,7 @@ export default function Calendar({
       setDate={setDate}
       calendarIconIsToday={calendarIconIsToday}
     >
+      <div className="flex flex-col max-h-screen">
       <CalendarHeader>
         <CalendarHeaderDate />
         <CalendarHeaderActions>
@@ -36,6 +37,7 @@ export default function Calendar({
         </CalendarHeaderActions>
       </CalendarHeader>
       <CalendarBody />
+      </div>
     </CalendarProvider>
   )
 }
